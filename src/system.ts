@@ -4,7 +4,7 @@ export interface ReactiveNode {
 	subs?: Link;
 	subsTail?: Link;
 	flags: ReactiveFlags;
-	depsEpoch?: number;
+	depsEpoch: number;
 }
 
 export interface Link {
@@ -15,7 +15,7 @@ export interface Link {
 	nextSub: Link | undefined;
 	prevDep: Link | undefined;
 	nextDep: Link | undefined;
-	depEpoch?: number;
+	depEpoch: number;
 }
 
 interface Stack<T> {

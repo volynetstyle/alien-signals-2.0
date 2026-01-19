@@ -125,6 +125,7 @@ export function signal<T>(initialValue?: T): {
 		subs: undefined,
 		subsTail: undefined,
 		flags: ReactiveFlags.Mutable,
+		depsEpoch: 0,
 	}) as () => T | undefined;
 }
 
@@ -136,6 +137,7 @@ export function computed<T>(getter: (previousValue?: T) => T): () => T {
 		deps: undefined,
 		depsTail: undefined,
 		flags: ReactiveFlags.None,
+		depsEpoch: 0,
 		getter: getter as (previousValue?: unknown) => unknown,
 	}) as () => T;
 }
@@ -148,6 +150,7 @@ export function effect(fn: () => void): () => void {
 		deps: undefined,
 		depsTail: undefined,
 		flags: ReactiveFlags.Watching | ReactiveFlags.RecursedCheck,
+		depsEpoch: 0,
 	};
 	const prevSub = setActiveSub(e);
 	if (prevSub !== undefined) {
@@ -169,6 +172,7 @@ export function effectScope(fn: () => void): () => void {
 		subs: undefined,
 		subsTail: undefined,
 		flags: ReactiveFlags.None,
+		depsEpoch: 0,
 	};
 	const prevSub = setActiveSub(e);
 	if (prevSub !== undefined) {
@@ -187,6 +191,7 @@ export function trigger(fn: () => void) {
 		deps: undefined,
 		depsTail: undefined,
 		flags: ReactiveFlags.Watching,
+		depsEpoch: 0,
 	};
 	const prevSub = setActiveSub(sub);
 	try {
@@ -212,7 +217,7 @@ export function trigger(fn: () => void) {
 
 function updateComputed(c: ComputedNode): boolean {
 	++cycle;
-	c.depsEpoch = (c.depsEpoch ?? 0) + 1;
+	++c.depsEpoch;
 	c.depsTail = undefined;
 	c.flags = ReactiveFlags.Mutable | ReactiveFlags.RecursedCheck;
 	const prevSub = setActiveSub(c);
@@ -241,7 +246,7 @@ function run(e: EffectNode): void {
 		)
 	) {
 		++cycle;
-		e.depsEpoch = (e.depsEpoch ?? 0) + 1;
+		++e.depsEpoch;
 		e.depsTail = undefined;
 		e.flags = ReactiveFlags.Watching | ReactiveFlags.RecursedCheck;
 		const prevSub = setActiveSub(e);
