@@ -212,6 +212,7 @@ export function trigger(fn: () => void) {
 
 function updateComputed(c: ComputedNode): boolean {
 	++cycle;
+	c.depsEpoch = (c.depsEpoch ?? 0) + 1;
 	c.depsTail = undefined;
 	c.flags = ReactiveFlags.Mutable | ReactiveFlags.RecursedCheck;
 	const prevSub = setActiveSub(c);
@@ -240,6 +241,7 @@ function run(e: EffectNode): void {
 		)
 	) {
 		++cycle;
+		e.depsEpoch = (e.depsEpoch ?? 0) + 1;
 		e.depsTail = undefined;
 		e.flags = ReactiveFlags.Watching | ReactiveFlags.RecursedCheck;
 		const prevSub = setActiveSub(e);

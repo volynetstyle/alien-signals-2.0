@@ -4,6 +4,7 @@ export interface ReactiveNode {
 	subs?: Link;
 	subsTail?: Link;
 	flags: ReactiveFlags;
+	depsEpoch?: number;
 }
 
 export interface Link {
@@ -14,6 +15,7 @@ export interface Link {
 	nextSub: Link | undefined;
 	prevDep: Link | undefined;
 	nextDep: Link | undefined;
+	depEpoch?: number;
 }
 
 interface Stack<T> {
@@ -46,6 +48,7 @@ export function createReactiveSystem({
 		propagate,
 		checkDirty,
 		shallowPropagate,
+		isValidLink,
 	};
 
 	function link(dep: ReactiveNode, sub: ReactiveNode, version: number): void {
@@ -56,6 +59,7 @@ export function createReactiveSystem({
 		const nextDep = prevDep !== undefined ? prevDep.nextDep : sub.deps;
 		if (nextDep !== undefined && nextDep.dep === dep) {
 			nextDep.version = version;
+			nextDep.depEpoch = sub.depsEpoch;
 			sub.depsTail = nextDep;
 			return;
 		}
@@ -74,6 +78,7 @@ export function createReactiveSystem({
 				nextDep,
 				prevSub,
 				nextSub: undefined,
+				depEpoch: sub.depsEpoch,
 			};
 		if (nextDep !== undefined) {
 			nextDep.prevDep = newLink;
@@ -258,13 +263,6 @@ export function createReactiveSystem({
 	}
 
 	function isValidLink(checkLink: Link, sub: ReactiveNode): boolean {
-		let link = sub.depsTail;
-		while (link !== undefined) {
-			if (link === checkLink) {
-				return true;
-			}
-			link = link.prevDep;
-		}
-		return false;
+		return checkLink.sub === sub && checkLink.depEpoch === sub.depsEpoch;
 	}
 }
