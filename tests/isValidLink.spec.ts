@@ -8,8 +8,8 @@ describe('isValidLink semantics', () => {
 	beforeAll(() => {
 		const system = createReactiveSystem({
 			update: () => false,
-			notify: () => {},
-			unwatched: () => {},
+			notify: () => { },
+			unwatched: () => { },
 		});
 		isValidLink = (system as any).isValidLink;
 	});
@@ -31,7 +31,7 @@ describe('isValidLink semantics', () => {
 				deps: undefined,
 				depsTail: undefined,
 				subs: undefined,
-				subsTail: undefined,
+				subsTail: undefined, depsEpoch: 0
 			};
 
 			const link1: Link = {
@@ -65,7 +65,7 @@ describe('isValidLink semantics', () => {
 				deps: undefined,
 				depsTail: undefined,
 				subs: undefined,
-				subsTail: undefined,
+				subsTail: undefined, depsEpoch: 0
 			};
 
 			const dep2: ReactiveNode = {
@@ -73,7 +73,7 @@ describe('isValidLink semantics', () => {
 				deps: undefined,
 				depsTail: undefined,
 				subs: undefined,
-				subsTail: undefined,
+				subsTail: undefined, depsEpoch: 0
 			};
 
 			const link1: Link = {
@@ -114,9 +114,9 @@ describe('isValidLink semantics', () => {
 				depsEpoch: 1,
 			};
 
-			const dep1: ReactiveNode = { flags: ReactiveFlags.None };
-			const dep2: ReactiveNode = { flags: ReactiveFlags.None };
-			const dep3: ReactiveNode = { flags: ReactiveFlags.None };
+			const dep1: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
+			const dep2: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
+			const dep3: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
 
 			// Create a chain: link1 -> link2 -> link3
 			const link3: Link = {
@@ -173,8 +173,8 @@ describe('isValidLink semantics', () => {
 				depsEpoch: 1,
 			};
 
-			const dep1: ReactiveNode = { flags: ReactiveFlags.None };
-			const dep2: ReactiveNode = { flags: ReactiveFlags.None };
+			const dep1: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
+			const dep2: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
 
 			const link2: Link = {
 				version: 2,
@@ -217,9 +217,9 @@ describe('isValidLink semantics', () => {
 				depsEpoch: 2, // epoch has advanced
 			};
 
-			const dep1: ReactiveNode = { flags: ReactiveFlags.None };
-			const dep2: ReactiveNode = { flags: ReactiveFlags.None };
-			const dep3: ReactiveNode = { flags: ReactiveFlags.None };
+			const dep1: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
+			const dep2: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
+			const dep3: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
 
 			// Create chain where link1 is stale (from old epoch)
 			const link1: Link = {
@@ -269,11 +269,11 @@ describe('isValidLink semantics', () => {
 				deps: undefined,
 				depsTail: undefined,
 				subs: undefined,
-				subsTail: undefined,
+				subsTail: undefined, depsEpoch: 0
 				// depsEpoch is undefined
 			};
 
-			const dep: ReactiveNode = { flags: ReactiveFlags.None };
+			const dep: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
 			const link: Link = {
 				version: 1,
 				dep: dep,
@@ -299,8 +299,8 @@ describe('isValidLink semantics', () => {
 				depsEpoch: 1,
 			};
 
-			const dep1: ReactiveNode = { flags: ReactiveFlags.None };
-			const dep2: ReactiveNode = { flags: ReactiveFlags.None };
+			const dep1: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
+			const dep2: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
 
 			const link1: Link = {
 				version: 1,
@@ -338,7 +338,7 @@ describe('isValidLink semantics', () => {
 				depsEpoch: 1,
 			};
 
-			const dep: ReactiveNode = { flags: ReactiveFlags.None };
+			const dep: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
 
 			const link: Link = {
 				version: 1,
@@ -366,7 +366,7 @@ describe('isValidLink semantics', () => {
 				depsEpoch: 1,
 			};
 
-			const dep1: ReactiveNode = { flags: ReactiveFlags.None };
+			const dep1: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
 
 			const link1: Link = {
 				version: 1,
@@ -406,7 +406,7 @@ describe('isValidLink semantics', () => {
 				depsEpoch: 2,
 			};
 
-			const dep1: ReactiveNode = { flags: ReactiveFlags.None };
+			const dep1: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
 
 			const link1: Link = {
 				version: 1,
@@ -443,9 +443,9 @@ describe('isValidLink semantics', () => {
 				depsEpoch: 1,
 			};
 
-			const dep1: ReactiveNode = { flags: ReactiveFlags.None };
-			const dep2: ReactiveNode = { flags: ReactiveFlags.None };
-			const dep3: ReactiveNode = { flags: ReactiveFlags.None };
+			const dep1: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
+			const dep2: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
+			const dep3: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
 
 			const link1: Link = {
 				version: 1,
@@ -501,9 +501,9 @@ describe('isValidLink semantics', () => {
 				depsEpoch: 2, // current epoch
 			};
 
-			const dep1: ReactiveNode = { flags: ReactiveFlags.None };
-			const dep2: ReactiveNode = { flags: ReactiveFlags.None };
-			const dep3: ReactiveNode = { flags: ReactiveFlags.None };
+			const dep1: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
+			const dep2: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
+			const dep3: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
 
 			const link1: Link = {
 				version: 1,
@@ -558,7 +558,7 @@ describe('isValidLink semantics', () => {
 
 			const links: Link[] = [];
 			for (let i = 0; i < 5; i++) {
-				const dep: ReactiveNode = { flags: ReactiveFlags.None };
+				const dep: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
 				const link: Link = {
 					version: i,
 					dep: dep,
@@ -591,7 +591,7 @@ describe('isValidLink semantics', () => {
 				flags: ReactiveFlags.None,
 				depsEpoch: 1,
 			};
-			const dep: ReactiveNode = { flags: ReactiveFlags.None };
+			const dep: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
 
 			const link: Link = {
 				version: 1,
@@ -619,7 +619,7 @@ describe('isValidLink semantics', () => {
 			// Create a longer chain for reference
 			const links: Link[] = [];
 			for (let i = 0; i < 10; i++) {
-				const dep: ReactiveNode = { flags: ReactiveFlags.None };
+				const dep: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
 				const link: Link = {
 					version: i,
 					dep: dep,
@@ -642,7 +642,7 @@ describe('isValidLink semantics', () => {
 			// Create a stale link from old epoch
 			const staleLink: Link = {
 				version: 99,
-				dep: { flags: ReactiveFlags.None },
+				dep: { flags: ReactiveFlags.None, depsEpoch: 0 },
 				sub: sub,
 				prevSub: undefined,
 				nextSub: undefined,
