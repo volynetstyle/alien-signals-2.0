@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { computed, effect, effectScope, endBatch, getActiveSub, setActiveSub, signal, startBatch } from '../src';
-import { ReactiveFlags } from '../src/system';
+import { ReactiveFlags } from '../src/flags';
 
 test('should clear subscriptions when untracked by all subscribers', () => {
 	let bRunTimes = 0;

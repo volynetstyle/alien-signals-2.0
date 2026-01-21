@@ -1,4 +1,6 @@
-import { createReactiveSystem, ReactiveFlags, type ReactiveNode } from './system.js';
+import { ReactiveFlags } from './flags.js';
+import type { ReactiveNode } from './graph.js';
+import { createReactiveSystem } from './system.js';
 
 interface EffectNode extends ReactiveNode {
 	fn(): void;
@@ -122,6 +124,8 @@ export function signal<T>(initialValue?: T): {
 	return signalOper.bind({
 		currentValue: initialValue,
 		pendingValue: initialValue,
+		deps: undefined,
+		depsTail: undefined,
 		subs: undefined,
 		subsTail: undefined,
 		flags: ReactiveFlags.Mutable,
@@ -190,6 +194,8 @@ export function trigger(fn: () => void) {
 	const sub: ReactiveNode = {
 		deps: undefined,
 		depsTail: undefined,
+		subs: undefined,
+		subsTail: undefined,
 		flags: ReactiveFlags.Watching,
 		depsEpoch: 0,
 	};

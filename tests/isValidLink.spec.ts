@@ -1,5 +1,7 @@
 import { expect, test, describe, beforeAll } from 'vitest';
-import { createReactiveSystem, ReactiveFlags, type ReactiveNode, type Link } from '../src/system';
+import { createReactiveSystem } from '../src/system';
+import { ReactiveFlags } from '../src/flags';
+import type { Link, ReactiveNode } from '../src/graph';
 
 describe('isValidLink semantics', () => {
 	let isValidLink: (checkLink: Link, sub: ReactiveNode) => boolean;
@@ -114,9 +116,9 @@ describe('isValidLink semantics', () => {
 				depsEpoch: 1,
 			};
 
-			const dep1: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
-			const dep2: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
-			const dep3: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
+			const dep1: ReactiveNode = { deps: undefined, depsTail: undefined, subs: undefined, subsTail: undefined, flags: ReactiveFlags.None, depsEpoch: 0 };
+			const dep2: ReactiveNode = { deps: undefined, depsTail: undefined, subs: undefined, subsTail: undefined, flags: ReactiveFlags.None, depsEpoch: 0 };
+			const dep3: ReactiveNode = { deps: undefined, depsTail: undefined, subs: undefined, subsTail: undefined, flags: ReactiveFlags.None, depsEpoch: 0 };
 
 			// Create a chain: link1 -> link2 -> link3
 			const link3: Link = {
@@ -173,8 +175,8 @@ describe('isValidLink semantics', () => {
 				depsEpoch: 1,
 			};
 
-			const dep1: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
-			const dep2: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
+			const dep1: ReactiveNode = { deps: undefined, depsTail: undefined, subs: undefined, subsTail: undefined, flags: ReactiveFlags.None, depsEpoch: 0 };
+			const dep2: ReactiveNode = { deps: undefined, depsTail: undefined, subs: undefined, subsTail: undefined, flags: ReactiveFlags.None, depsEpoch: 0 };
 
 			const link2: Link = {
 				version: 2,
@@ -217,9 +219,9 @@ describe('isValidLink semantics', () => {
 				depsEpoch: 2, // epoch has advanced
 			};
 
-			const dep1: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
-			const dep2: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
-			const dep3: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
+			const dep1: ReactiveNode = { deps: undefined, depsTail: undefined, subs: undefined, subsTail: undefined, flags: ReactiveFlags.None, depsEpoch: 0 };
+			const dep2: ReactiveNode = { deps: undefined, depsTail: undefined, subs: undefined, subsTail: undefined, flags: ReactiveFlags.None, depsEpoch: 0 };
+			const dep3: ReactiveNode = { deps: undefined, depsTail: undefined, subs: undefined, subsTail: undefined, flags: ReactiveFlags.None, depsEpoch: 0 };
 
 			// Create chain where link1 is stale (from old epoch)
 			const link1: Link = {
@@ -273,7 +275,7 @@ describe('isValidLink semantics', () => {
 				// depsEpoch is undefined
 			};
 
-			const dep: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
+			const dep: ReactiveNode = { deps: undefined, depsTail: undefined, subs: undefined, subsTail: undefined, flags: ReactiveFlags.None, depsEpoch: 0 };
 			const link: Link = {
 				version: 1,
 				dep: dep,
@@ -291,16 +293,18 @@ describe('isValidLink semantics', () => {
 
 		test('should return false when checking unrelated link', () => {
 			const sub1: ReactiveNode = {
+				deps: undefined, depsTail: undefined, subs: undefined, subsTail: undefined,
 				flags: ReactiveFlags.None,
 				depsEpoch: 1,
 			};
 			const sub2: ReactiveNode = {
+				deps: undefined, depsTail: undefined, subs: undefined, subsTail: undefined,
 				flags: ReactiveFlags.None,
 				depsEpoch: 1,
 			};
 
-			const dep1: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
-			const dep2: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
+			const dep1: ReactiveNode = { deps: undefined, depsTail: undefined, subs: undefined, subsTail: undefined, flags: ReactiveFlags.None, depsEpoch: 0 };
+			const dep2: ReactiveNode = { deps: undefined, depsTail: undefined, subs: undefined, subsTail: undefined, flags: ReactiveFlags.None, depsEpoch: 0 };
 
 			const link1: Link = {
 				version: 1,
@@ -338,7 +342,7 @@ describe('isValidLink semantics', () => {
 				depsEpoch: 1,
 			};
 
-			const dep: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
+			const dep: ReactiveNode = { deps: undefined, depsTail: undefined, subs: undefined, subsTail: undefined, flags: ReactiveFlags.None, depsEpoch: 0 };
 
 			const link: Link = {
 				version: 1,
@@ -362,11 +366,12 @@ describe('isValidLink semantics', () => {
 	describe('link identity semantics', () => {
 		test('should use reference equality to match links (epoch-based)', () => {
 			const sub: ReactiveNode = {
+				deps: undefined, depsTail: undefined, subs: undefined, subsTail: undefined,
 				flags: ReactiveFlags.None,
 				depsEpoch: 1,
 			};
 
-			const dep1: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
+			const dep1: ReactiveNode = { deps: undefined, depsTail: undefined, subs: undefined, subsTail: undefined, flags: ReactiveFlags.None, depsEpoch: 0 };
 
 			const link1: Link = {
 				version: 1,
@@ -402,11 +407,12 @@ describe('isValidLink semantics', () => {
 
 		test('should not match links when epoch differs', () => {
 			const sub: ReactiveNode = {
+				deps: undefined, depsTail: undefined, subs: undefined, subsTail: undefined,
 				flags: ReactiveFlags.None,
 				depsEpoch: 2,
 			};
 
-			const dep1: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
+			const dep1: ReactiveNode = { deps: undefined, depsTail: undefined, subs: undefined, subsTail: undefined, flags: ReactiveFlags.None, depsEpoch: 0 };
 
 			const link1: Link = {
 				version: 1,
@@ -439,13 +445,14 @@ describe('isValidLink semantics', () => {
 	describe('complex dependency graphs', () => {
 		test('should handle multiple dependencies for same subscriber', () => {
 			const sub: ReactiveNode = {
+				deps: undefined, depsTail: undefined, subs: undefined, subsTail: undefined,
 				flags: ReactiveFlags.None,
 				depsEpoch: 1,
 			};
 
-			const dep1: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
-			const dep2: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
-			const dep3: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
+			const dep1: ReactiveNode = { deps: undefined, depsTail: undefined, subs: undefined, subsTail: undefined, flags: ReactiveFlags.None, depsEpoch: 0 };
+			const dep2: ReactiveNode = { deps: undefined, depsTail: undefined, subs: undefined, subsTail: undefined, flags: ReactiveFlags.None, depsEpoch: 0 };
+			const dep3: ReactiveNode = { deps: undefined, depsTail: undefined, subs: undefined, subsTail: undefined, flags: ReactiveFlags.None, depsEpoch: 0 };
 
 			const link1: Link = {
 				version: 1,
@@ -497,13 +504,14 @@ describe('isValidLink semantics', () => {
 
 		test('should not find links not in current epoch', () => {
 			const sub: ReactiveNode = {
+				deps: undefined, depsTail: undefined, subs: undefined, subsTail: undefined,
 				flags: ReactiveFlags.None,
 				depsEpoch: 2, // current epoch
 			};
 
-			const dep1: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
-			const dep2: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
-			const dep3: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
+			const dep1: ReactiveNode = { deps: undefined, depsTail: undefined, subs: undefined, subsTail: undefined, flags: ReactiveFlags.None, depsEpoch: 0 };
+			const dep2: ReactiveNode = { deps: undefined, depsTail: undefined, subs: undefined, subsTail: undefined, flags: ReactiveFlags.None, depsEpoch: 0 };
+			const dep3: ReactiveNode = { deps: undefined, depsTail: undefined, subs: undefined, subsTail: undefined, flags: ReactiveFlags.None, depsEpoch: 0 };
 
 			const link1: Link = {
 				version: 1,
@@ -552,13 +560,14 @@ describe('isValidLink semantics', () => {
 
 		test('should efficiently find links without traversal (O(1))', () => {
 			const sub: ReactiveNode = {
+				deps: undefined, depsTail: undefined, subs: undefined, subsTail: undefined,
 				flags: ReactiveFlags.None,
 				depsEpoch: 5,
 			};
 
 			const links: Link[] = [];
 			for (let i = 0; i < 5; i++) {
-				const dep: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
+				const dep: ReactiveNode = { deps: undefined, depsTail: undefined, subs: undefined, subsTail: undefined, flags: ReactiveFlags.None, depsEpoch: 0 };
 				const link: Link = {
 					version: i,
 					dep: dep,
@@ -588,10 +597,11 @@ describe('isValidLink semantics', () => {
 	describe('performance characteristics', () => {
 		test('should return immediately for link with matching epoch', () => {
 			const sub: ReactiveNode = {
+				deps: undefined, depsTail: undefined, subs: undefined, subsTail: undefined,
 				flags: ReactiveFlags.None,
 				depsEpoch: 1,
 			};
-			const dep: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
+			const dep: ReactiveNode = { deps: undefined, depsTail: undefined, subs: undefined, subsTail: undefined, flags: ReactiveFlags.None, depsEpoch: 0 };
 
 			const link: Link = {
 				version: 1,
@@ -612,6 +622,7 @@ describe('isValidLink semantics', () => {
 
 		test('should detect stale links immediately (O(1))', () => {
 			const sub: ReactiveNode = {
+				deps: undefined, depsTail: undefined, subs: undefined, subsTail: undefined,
 				flags: ReactiveFlags.None,
 				depsEpoch: 3,
 			};
@@ -619,7 +630,7 @@ describe('isValidLink semantics', () => {
 			// Create a longer chain for reference
 			const links: Link[] = [];
 			for (let i = 0; i < 10; i++) {
-				const dep: ReactiveNode = { flags: ReactiveFlags.None, depsEpoch: 0 };
+				const dep: ReactiveNode = { deps: undefined, depsTail: undefined, subs: undefined, subsTail: undefined, flags: ReactiveFlags.None, depsEpoch: 0 };
 				const link: Link = {
 					version: i,
 					dep: dep,
@@ -642,7 +653,7 @@ describe('isValidLink semantics', () => {
 			// Create a stale link from old epoch
 			const staleLink: Link = {
 				version: 99,
-				dep: { flags: ReactiveFlags.None, depsEpoch: 0 },
+				dep: { deps: undefined, depsTail: undefined, subs: undefined, subsTail: undefined, flags: ReactiveFlags.None, depsEpoch: 0 },
 				sub: sub,
 				prevSub: undefined,
 				nextSub: undefined,

@@ -50,7 +50,7 @@
 		"prepublishOnly": "npm run check && npm run test",
 		"check": "tsslint --project tsconfig.json",
 		"size": "node ./size.js",
-		"build": "node ./build.js",
+		"build": "node ./build.mjs",
 		"test": "npm run build && vitest run",
 		"bench": "npm run build && node --jitless --expose-gc benchs/propagate.mjs",
 		"memory": "npm run build && node --expose-gc benchs/memoryUsage.mjs"
@@ -58,10 +58,11 @@
 	"devDependencies": {
 		"@tsslint/cli": "latest",
 		"@tsslint/config": "latest",
+		"esbuild": "^0.27.2",
 		"jest-extended": "latest",
 		"mitata": "latest",
 		"rolldown": "latest",
-		"typescript": "latest",
+		"typescript": "^5.9.2",
 		"vitest": "latest"
 	}
 }
