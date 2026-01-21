@@ -6,6 +6,27 @@ interface Stack<T> {
 	prev: Stack<T> | undefined;
 }
 
+function createLink(
+	dep: ReactiveNode,
+	sub: ReactiveNode,
+	prevDep: Link | undefined,
+	nextDep: Link | undefined,
+	prevSub: Link | undefined,
+	version: number,
+	depEpoch: number
+) {
+	return {
+		dep,
+		sub,
+		prevDep,
+		nextDep,
+		prevSub,
+		nextSub: undefined,
+		version,
+		depEpoch,
+	};
+}
+
 export function createReactiveSystem({
 	update,
 	notify,
@@ -25,106 +46,74 @@ export function createReactiveSystem({
 	};
 
 	function link(dep: ReactiveNode, sub: ReactiveNode, version: number): void {
-		const tailDep = sub.depsTail;
-		if (tailDep !== undefined && tailDep.dep === dep) return;
+		const prevDep = sub.depsTail;
 
-		const tailSub = dep.subsTail;
-		if (tailSub !== undefined && tailSub.version === version && tailSub.sub === sub) return;
-
-		// (keeps your original optimisation idea, but avoids extra conditionals)
-		const headDep = sub.deps;
-		let nextDep: Link | undefined;
-
-		if (tailDep !== undefined) {
-			nextDep = tailDep.nextDep; // likely the cursor position
-
-			if (nextDep !== undefined && nextDep.dep === dep) {
-				nextDep.version = version;
-				nextDep.depEpoch = sub.depsEpoch;
-				sub.depsTail = nextDep;
-				return;
-			}
-		} else {
-			// no deps yet => cursor = head
-			nextDep = headDep;
-			if (nextDep !== undefined && nextDep.dep === dep) {
-				nextDep.version = version;
-				nextDep.depEpoch = sub.depsEpoch;
-				sub.depsTail = nextDep;
-				return;
-			}
+		if (prevDep !== undefined && prevDep.dep === dep) {
+			return;
 		}
 
-		const newLink: Link = {
-			dep,
-			sub,
-			prevDep: tailDep,
-			nextDep: undefined,
-			prevSub: tailSub,
-			nextSub: undefined,
-			version,
-			depEpoch: sub.depsEpoch,
-		};
+		const nextDep = prevDep !== undefined ? prevDep.nextDep : sub.deps;
 
-		if (tailDep !== undefined) {
-			tailDep.nextDep = newLink;
+		if (nextDep !== undefined && nextDep.dep === dep) {
+			nextDep.version = version;
+			nextDep.depEpoch = sub.depsEpoch;
+			sub.depsTail = nextDep;
+			return;
+		}
+
+		const prevSub = dep.subsTail;
+
+		if (prevSub !== undefined && prevSub.version === version && prevSub.sub === sub) {
+			return;
+		}
+
+		const newLink = createLink(dep, sub, prevDep, nextDep, prevSub, version, sub.depsEpoch);
+
+		sub.depsTail = newLink;
+		dep.subsTail = newLink;
+
+		if (nextDep !== undefined) nextDep.prevDep = newLink;
+		if (prevDep !== undefined) {
+			prevDep.nextDep = newLink;
 		} else {
 			sub.deps = newLink;
 		}
-		sub.depsTail = newLink;
 
-		if (tailSub !== undefined) {
-			tailSub.nextSub = newLink;
+		if (prevSub !== undefined) {
+			prevSub.nextSub = newLink;
 		} else {
 			dep.subs = newLink;
 		}
-		dep.subsTail = newLink;
 	}
 
-	function unlink(link: Link, sub: ReactiveNode = link.sub): Link | undefined {
+	function unlink(link: Link, sub = link.sub): Link | undefined {
 		const dep = link.dep;
-
-		const nextDep = link.nextDep;
 		const prevDep = link.prevDep;
-
+		const nextDep = link.nextDep;
 		const nextSub = link.nextSub;
 		const prevSub = link.prevSub;
-
-		// ---- detach from sub.deps chain
-		if (prevDep !== undefined) {
-			prevDep.nextDep = nextDep;
-		} else {
-			sub.deps = nextDep;
-		}
-
 		if (nextDep !== undefined) {
 			nextDep.prevDep = prevDep;
 		} else {
 			sub.depsTail = prevDep;
 		}
-
-		// ---- detach from dep.subs chain
-		if (prevSub !== undefined) {
-			prevSub.nextSub = nextSub;
+		if (prevDep !== undefined) {
+			prevDep.nextDep = nextDep;
 		} else {
-			dep.subs = nextSub;
-			if (nextSub === undefined) {
-				// dep now has no subscribers
-				dep.subsTail = undefined;
-				unwatched(dep);
-				return nextDep;
-			}
+			sub.deps = nextDep;
 		}
-
 		if (nextSub !== undefined) {
 			nextSub.prevSub = prevSub;
 		} else {
 			dep.subsTail = prevSub;
 		}
-
+		if (prevSub !== undefined) {
+			prevSub.nextSub = nextSub;
+		} else if ((dep.subs = nextSub) === undefined) {
+			unwatched(dep);
+		}
 		return nextDep;
 	}
-
 
 	function propagate(link: Link): void {
 		let next = link.nextSub;

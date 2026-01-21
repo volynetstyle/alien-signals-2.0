@@ -1,5 +1,3 @@
-import { ReactiveFlags } from "./flags";
-
 export interface Link {
 	dep: ReactiveNode;
 	sub: ReactiveNode;
@@ -20,7 +18,7 @@ export interface ReactiveNode {
 	subs: Link | undefined;
 	subsTail: Link | undefined;
 
-	flags: ReactiveFlags;
+	flags: number;
 
 	depsEpoch: number;
 }

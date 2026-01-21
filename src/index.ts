@@ -1,20 +1,8 @@
-import { ReactiveFlags } from './flags.js';
 import type { ReactiveNode } from './graph.js';
 import { createReactiveSystem } from './system.js';
-
-interface EffectNode extends ReactiveNode {
-	fn(): void;
-}
-
-interface ComputedNode<T = any> extends ReactiveNode {
-	value: T | undefined;
-	getter: (previousValue?: T) => T;
-}
-
-interface SignalNode<T = any> extends ReactiveNode {
-	currentValue: T;
-	pendingValue: T;
-}
+// Flags will be inlined during build
+import { ReactiveFlags } from './flags.js';
+import type { EffectNode, SignalNode, ComputedNode } from './types.js';
 
 let cycle = 0;
 let batchDepth = 0;

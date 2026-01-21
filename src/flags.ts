@@ -9,12 +9,15 @@
  * | `Recursed`      | recursion    | `propagate`                          | `propagate/checkDirty` | “цей sub пройшов через рекурсивний шлях”        |
  * 
  */
-export const enum ReactiveFlags {
-	None = 0,
-	Mutable,
-	Watching,
-	RecursedCheck,
-	Recursed,
-	Dirty,
-	Pending,
-}
+export const ReactiveFlags = {
+	None: 0,
+	Mutable: 1 << 0,
+	Watching: 1 << 1,
+	RecursedCheck: 1 << 2,
+	Recursed: 1 << 3,
+	Dirty: 1 << 4,
+	Pending: 1 << 5,
+} as const;
+
+export type ReactiveFlags =
+	(typeof ReactiveFlags)[keyof typeof ReactiveFlags];
