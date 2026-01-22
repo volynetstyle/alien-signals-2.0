@@ -7,9 +7,6 @@ import { getParsedCommandLineOfConfigFile, sys, createProgram } from "typescript
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-/** ---------------------------
- *  Parse tsconfig
- *  -------------------------- */
 const config = getParsedCommandLineOfConfigFile(
 	join(__dirname, "tsconfig.json"),
 	undefined,
@@ -21,33 +18,22 @@ if (!config) {
 	process.exit(1);
 }
 
-/**
- * ВАЖНО:
- *  esbuild entrypoints = все исходники проекта — обычно плохая идея,
- *  но раз ты повторяешь поведение tsc emit "по файлам", оставим.
- */
 const entryPoints = config.fileNames.filter((f) => {
 	const ext = extname(f);
-	// Exclude flags.ts from entry points (will be inlined)
 	if (f.endsWith("flags.ts") || f.endsWith("flags.tsx")) {
 		return false;
 	}
 	return ext === ".ts" || ext === ".tsx" || ext === ".mts" || ext === ".cts";
 });
 
-/** ---------------------------
- *  Enum transformer (best-effort)
- *  -------------------------- */
+
 const iifeRe =
 	/(export\s*)?var\s+([A-Za-z_$][\w$]*)\s*;\s*\(\s*function\s*\(\s*\2\s*\)\s*\{\s*([\s\S]*?)\s*\}\s*\)\s*\(\s*\2\s*\|\|\s*\(\s*(?:exports\.\2\s*=\s*)?\2\s*=\s*\{\}\s*\)\s*\)\s*;?/g;
 
 const entryRe = /\[\s*(['"])([^'"]+)\1\s*\]\s*=\s*([^\]]+?)\s*\]/g;
 
-/** ---------------------------
- *  Inline ReactiveFlags constants
- *  -------------------------- */
+
 function inlineReactiveFlags(code) {
-	// Map of flag names to their values
 	const flagValues = {
 		None: "0",
 		Mutable: "1",
@@ -97,9 +83,6 @@ function transformEnumsToConst(code) {
 	});
 }
 
-/** ---------------------------
- *  Emit types (TS only)
- *  -------------------------- */
 function emitTypes() {
 	const program = createProgram({
 		rootNames: config.fileNames,
@@ -172,15 +155,6 @@ function rewriteInternalImports(code, { format, outExt }) {
 	return code;
 }
 
-/** ---------------------------
- *  Post-process plugin:
- *   - read all output *.js
- *   - inline ReactiveFlags constants
- *   - remove flags.* files
- *   - rewrite internal imports
- *   - enum transform (best-effort)
- *   - rename to *.mjs / *.cjs
- * -------------------------- */
 function postProcessPlugin({ format }) {
 	const outExt = format === "cjs" ? ".cjs" : ".mjs";
 
@@ -223,9 +197,6 @@ function postProcessPlugin({ format }) {
 	};
 }
 
-/** ---------------------------
- *  Build JS (esbuild)
- * -------------------------- */
 async function buildJs({ format, outdir }) {
 	const result = await esbuild.build({
 		entryPoints,
@@ -246,9 +217,7 @@ async function buildJs({ format, outdir }) {
 	if (result.errors?.length) process.exit(1);
 }
 
-/** ---------------------------
- *  Run
- * -------------------------- */
+
 emitTypes();
 await buildJs({ format: "cjs", outdir: "cjs" });
 await buildJs({ format: "esm", outdir: "esm" });
